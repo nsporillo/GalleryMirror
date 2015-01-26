@@ -25,8 +25,8 @@ import org.json.simple.parser.JSONParser;
 public class Gallery {
 
 	// https://api.imgur.com/3/gallery/t/{t_name}/{sort}/{page}
-	public final static Path workingDir = Paths.get("");
 	public final static String endpoint = "https://api.imgur.com/3/";
+	public final static Path workingDir = Paths.get("");
 	public final static JSONParser parser = new JSONParser();
 	public final static List<Media> mediaQueue = new ArrayList<Media>();
 
