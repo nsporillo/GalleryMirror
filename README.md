@@ -4,11 +4,10 @@ GalleryMirror is a imgur mirroring program. The purpose is to allow you to keep 
 
 == Config == 
 > {"clientId":"<your_client_id>","delay":30,"gallery":"reaction_gifs"}
-> client_id is your imgur api client id
-> delay is in minutes, how often to check for gallery updates
-> gallery is the tag you want to download
 
 == Running ==
-> java -jar GalleryMirror.jar
+``` Bash
+java -jar GalleryMirror.jar
+```
 
 You will get a response code error because invalid client id, so replace your client id in the newly generated config and run the command again
