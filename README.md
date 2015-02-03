@@ -2,10 +2,10 @@
 
 GalleryMirror is a imgur mirroring program. The purpose is to allow you to keep an always updated copy of a imgur gallery on your harddrive. This can be useful if you're someone who loves a particular type of image commonly found on imgur. Tag Galleries enable GalleryMirror to download every image by a tag.
 
-== Config == 
+##Config 
 > {"clientId":"<your_client_id>","delay":30,"gallery":"reaction_gifs"}
 
-== Running ==
+##Running
 ``` Bash
 java -jar GalleryMirror.jar
 ```
