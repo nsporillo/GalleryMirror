@@ -13,4 +13,4 @@ hs_err_pid*
 *.name
 .idea/copyright/profiles_settings.xml
 *.xml
-GalleryMirror/GalleryMirror.iml
+GalleryMirror.iml
