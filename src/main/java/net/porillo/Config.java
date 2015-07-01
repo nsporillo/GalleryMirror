@@ -1,14 +1,16 @@
 package net.porillo;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 
-import static java.nio.file.Files.*;
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.newInputStream;
 
 public class Config {
 
@@ -18,40 +20,30 @@ public class Config {
 
     @SuppressWarnings("unchecked")
     public Config(Path dir) {
-        JSONParser parser = new JSONParser();
         StringBuilder sb = new StringBuilder();
         Path confile = dir.resolve("config.json");
         try {
             if (!exists(confile)) {
-                JSONObject jobj = new JSONObject();
-                jobj.put("gallery", "reaction_gifs");
-                jobj.put("clientId", "<your_client_id>");
-                jobj.put("delay", 30);
-
-                byte data[] = jobj.toJSONString().getBytes();
-                OutputStream out = new BufferedOutputStream(
-                        newOutputStream(confile, CREATE, APPEND));
-                out.write(data, 0, data.length);
-                out.flush();
-                out.close();
-
-                this.setGallery("reaction_gifs");
-                this.setDelay(30);
-                this.setClientId("null");
+                this.gallery = "reaction_gifs";
+                this.delay = 30;
+                this.clientId = "null";
+                FileIO.write(confile, GalleryMirror.getGson().toJson(this));
             } else {
                 InputStream in = newInputStream(dir.resolve("config.json"));
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                String line = null;
+                String line;
 
                 while ((line = reader.readLine()) != null) {
                     sb.append(line);
                 }
                 System.out.println(sb.toString());
-
-                JSONObject obj = (JSONObject) parser.parse(sb.toString());
-                this.setGallery((String) obj.get("gallery"));
-                this.setClientId((String) obj.get("clientId"));
-                this.setDelay((Integer) obj.get("delay"));
+                JsonElement jsonElement = new JsonParser().parse(sb.toString());
+                if (jsonElement.isJsonObject()) {
+                    JsonObject obj = jsonElement.getAsJsonObject();
+                    this.setGallery(obj.get("gallery").getAsString());
+                    this.setDelay(obj.get("delay").getAsInt());
+                    this.setClientId(obj.get("clientId").getAsString());
+                }
             }
         } catch (Exception ex) {
         }
@@ -82,5 +74,9 @@ public class Config {
 
     private void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    public String toString() {
+        return "Config [gallery=" + gallery + ", delay= " + delay + ", clientId=" + clientId + "]";
     }
 }
