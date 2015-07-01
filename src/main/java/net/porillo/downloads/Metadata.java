@@ -1,115 +1,30 @@
 package net.porillo.downloads;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import net.porillo.FileIO;
 
-import java.io.*;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static java.nio.file.Files.*;
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
+import java.io.IOException;
 
 public class Metadata {
-
-    private Path mediaPath;
-    private Path metaFile;
-    private Path metaDir;
     private String id;
     private boolean animated;
     private long date;
     private int score;
 
-    public Metadata(Path dir, String id) {
-        this.metaDir = dir;
-        this.id = id;
-        this.metaFile = dir.resolve(id + ".json");
-        try {
-            if (Files.exists(metaFile)) {
-                JSONParser parser = new JSONParser();
-                StringBuilder sb = new StringBuilder();
-                InputStream in = newInputStream(dir.resolve("config.json"));
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                String line = null;
-
-                while ((line = reader.readLine()) != null)
-                    sb.append(line);
-
-                JSONObject obj = (JSONObject) parser.parse(sb.toString());
-                this.id = (String) obj.get("id");
-                this.date = (Long) obj.get("date");
-                this.score = (Integer) obj.get("score");
-                this.animated = (Boolean) obj.get("animated");
-                this.mediaPath = Paths.get((URI) obj.get("path"));
-            } else {
-                throw new RuntimeException("Cannot call MediaMeta by ID if it does not exist");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public Metadata(Path metaDir, Path mediaDir, Media m) {
-        this.metaDir = metaDir;
-        this.id = truncateId(m.getLink());
+    public Metadata(Media m) {
+        this.id = FileIO.getId(m.getLink());
         this.date = m.getDate();
-        if (m instanceof Video)
-            this.animated = true;
-        else
-            this.animated = false;
+        this.animated = m instanceof Video;
         this.score = m.getScore();
-        this.metaFile = metaDir.resolve(id + ".json");
-        this.mediaPath = mediaDir.resolve(truncateFile(m.getLink()));
-        if (!exists(metaFile)) {
-            this.create();
+    }
+
+    public void load() {
+        if (!FileIO.exists(this)) {
+            try {
+                FileIO.write(this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-    }
-
-    public static boolean doesExist(Path metaDir, String id) {
-        return exists(metaDir.resolve(id + ".json"));
-    }
-
-    public static String truncateId(String link) {
-        return link.substring(link.lastIndexOf("/") + 1, link.length() - 4);
-    }
-
-    public static String truncateFile(String link) {
-        return link.substring(link.lastIndexOf("/") + 1, link.length());
-    }
-
-    @SuppressWarnings("unchecked")
-    public void create() {
-        try {
-            JSONObject jobj = new JSONObject();
-            jobj.put("id", this.id);
-            jobj.put("date", this.date);
-            jobj.put("score", this.score);
-            jobj.put("animated", this.animated);
-            jobj.put("path", this.mediaPath.toAbsolutePath().normalize().toString());
-            Path metadata = metaDir.resolve(this.id + ".json");
-            byte data[] = jobj.toJSONString().getBytes();
-            OutputStream out = new BufferedOutputStream(newOutputStream(metadata, CREATE, APPEND));
-            out.write(data, 0, data.length);
-            out.flush();
-            out.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public Path getMediaPath() {
-        return mediaPath;
-    }
-
-    public Path getMetaFile() {
-        return metaFile;
-    }
-
-    public Path getMetaDir() {
-        return metaDir;
     }
 
     public String getId() {
@@ -122,5 +37,16 @@ public class Metadata {
 
     public int getScore() {
         return score;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Metadata [");
+        sb.append(", id='").append(id).append('\'');
+        sb.append(", animated=").append(animated);
+        sb.append(", date=").append(date);
+        sb.append(", score=").append(score);
+        sb.append(']');
+        return sb.toString();
     }
 }

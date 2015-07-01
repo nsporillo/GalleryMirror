@@ -1,6 +1,6 @@
 package net.porillo.galleries;
 
-import org.json.simple.JSONObject;
+import com.google.gson.JsonObject;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -20,16 +20,15 @@ public class TagGallery extends Gallery {
 
     @Override
     public void connect() {
-        HttpURLConnection conn = null;
+        HttpURLConnection conn;
         try {
             URL url = new URL(surl.replace("{tag}", tag));
             conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestProperty("Authorization", "Client-ID " + CID);
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                List<JSONObject> items = super.gatherItems(handleResponse(conn.getInputStream()));
-                System.out.println(url.toString() + " -> " + conn.getResponseCode() + " -> "
-                        + items.size() + " medium");
+                List<JsonObject> items = super.gatherItems(handleResponse(conn.getInputStream()));
+                System.out.println(url.toString() + " -> " + conn.getResponseCode() + " -> " + items.size() + " medium");
                 super.assessItems(items);
             } else {
                 super.handleError(conn);

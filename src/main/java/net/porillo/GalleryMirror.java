@@ -1,5 +1,6 @@
 package net.porillo;
 
+import com.google.gson.Gson;
 import net.porillo.downloads.Media;
 import net.porillo.galleries.Gallery;
 import net.porillo.galleries.TagGallery;
@@ -13,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class GalleryMirror {
 
     private final static ScheduledExecutorService EXEC = Executors.newScheduledThreadPool(1);
-
+    private final static Gson gson = new Gson();
     private Config config;
 
     public GalleryMirror() {
@@ -23,6 +24,10 @@ public class GalleryMirror {
     public static void main(String[] args) {
         GalleryMirror gd = new GalleryMirror();
         gd.start();
+    }
+
+    public static Gson getGson() {
+        return gson;
     }
 
     public void start() {
